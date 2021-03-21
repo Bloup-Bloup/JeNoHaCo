@@ -2,6 +2,9 @@
 ###### FORMULAIRE PEDAGOGIQUE ######
 ####################################
 
+Mini projet d'études sur 3 jours. 
+Représenter statistiquement les réponses des étudiants à un google form de fin d'année pour aider l'équipe pédagogique.
+
 ===================================================================================================
 VERSIONS
 ===================================================================================================
