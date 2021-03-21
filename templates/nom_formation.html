@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>nom formation</title>
+</head>
+<body>
+        <select name="form" id="form">
+            {% for x in df3 %}
+                <option value="{{ x }}">{{ x }}</option>
+            {% endfor %}
+        </select>
+        <select name="form2" id="form2">
+            {% for y in df %}
+                <option value="{{ y }}">{{ y }}</option>
+            {% endfor %}
+        </select>
+        <select name="form3" id="form3">
+            {% for z in df2 %}
+                <option value="{{ z }}">{{ z }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" class="btn btn-success" onclick="envoyerFormulaire()">Générer graphique</button>
+        <script>
+                function envoyerFormulaire() {
+                    let jsonForm = JSON.stringify({
+                        "x": document.getElementById('x').value,
+                        "y": document.getElementById('y').value
+                        "z": document.getElementById('z').value
+        });
+        request.send(jsonForm);
+                }
+        </script>
+</body>
+</html>

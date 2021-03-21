@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>afficher tableau</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+</head>
+<body>
+
+<form action="/" method="GET">
+    <br></br>
+    <input type="submit" value="Retour">
+    <input type="hidden" value="{{ nom_formation }}" id="nom_formation">
+    <input type="button" id="pdfExport" value="Export to PDF" onclick="ExportPDF()"/>
+    <input type="button" id="csvExport" value="Export to CSV" onclick="ExportCSV()"/>
+</form>
+<div id="cefimTAB">
+    <br></br>
+    <div class="container">
+        <div class="overflow-auto">
+            <div class="row justify-content-md-center">
+                <div class="col-md-auto">
+                    <table class="table table-bordered">
+                        <thead class="p-3 mb-2 bg-secondary text-white">
+                        <tr>
+                            {% for x in tab[0] %}
+                            <th scope="col"> {{ x[4:] }}</th>
+                            {% endfor %}
+                        </thead>
+                        </tr>
+                        {% for value in tab %}
+                        <tr>
+                            {% for key, i in value.items() %}
+                            <td> {{ i }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+<div>
+    <br>
+    <div class="container">
+        <br><label><strong> Sélectionnez une question pour afficher une représentation graphique des réponses
+        : </strong></label><br>
+        <br>
+        <select id="test" onchange="quanti()">
+            {% for name in colonnes %}
+            <option id="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<br>
+<div id="figure"></div>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+       function quanti() {
+           let json = JSON.stringify({
+               "question_quant": document.getElementById('test').value,
+               "nom_formation": document.getElementById('nom_formation').value
+              });
+           let request = new XMLHttpRequest();
+           request.open("POST", "/api/tab", true);
+           request.setRequestHeader("Content-type", "application/json");
+           request.onreadystatechange = function() {
+           if (this.readyState == 4) {
+               let reponse = JSON.parse(this.responseText);
+               let figure = document.getElementById('figure')
+               Plotly.newPlot( figure, reponse);
+           }
+       };
+           request.send(json);
+       }
+
+</script>
+<br/>
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.22/pdfmake.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+</div>
+<!--export to PDF-->
+<script type="text/javascript">
+    function ExportPDF() {
+        html2canvas(document.getElementById('cefimTAB'), {
+            onrendered: function (canvas) {
+                var data = canvas.toDataURL();
+                var docDefinition = {
+                    content: [{
+                        image: data,
+                        width: 500
+                    }]
+                };
+                pdfMake.createPdf(docDefinition).download("tableauCefim.pdf");
+            }
+        });
+    }
+
+</script>
+<!--Export to CSV-->
+<script>
+    function ExportCSV() {
+        var csv = [];
+        var rows = document.querySelectorAll("table tr");
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+            for (var j = 0; j < cols.length; j++)
+                row.push(cols[j].innerText);
+            csv.push(row.join(","));
+        }
+        // télécharger le fichier CSV
+        downloadCSV(csv.join("\n"), "tableauCefim.csv");
+    }
+    function downloadCSV(csv, filename) {
+        var csvFile;
+        var downloadLink;
+        // fichier CSV
+        csvFile = new Blob([csv], {type: "text/csv"});
+        // télécharger link
+        downloadLink = document.createElement("a");
+        // nom du fichier
+        downloadLink.download = filename;
+        // Créer un lien vers le fichier
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        // Masquer le lien de téléchargement
+        downloadLink.style.display = "none";
+        // Ajouter le lien to DOM
+        document.body.appendChild(downloadLink);
+        // Cliquez sur le lien de téléchargement
+        downloadLink.click();
+    }
+
+</script>
+</body>
+</html>

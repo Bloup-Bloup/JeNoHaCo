@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select</title>
+</head>
+<body>
+    <select id="date" onchange="recupereFormations()">
+            {% for y in df %}
+                <option value="{{ y }}">{{ y }}</option>
+            {% endfor %}
+    </select>
+    <select id="formation">
+​
+    </select>
+​
+    <script>
+        function recupereFormations() {
+            console.log("acces fonction");
+            let json = JSON.stringify({
+                "date": document.getElementById('date').value,
+            });
+​
+            let request = new XMLHttpRequest();
+            request.open("POST", "/formations", true);
+            request.setRequestHeader("Content-type", "application/json");
+            request.onreadystatechange = function() {
+                if (this.readyState === 4) {
+                    let json = JSON.parse(this.responseText);
+                    //let json = { "questions": ["question 1", "question 2"] };
+                    let select = document.getElementById('formation');
+​
+                    let html = '';
+​
+                    for(let i in json.formations){
+                        let formation = df[i];
+                        html += '<option value="'+formation.id+'">'+formation.libelle+'</option>';
+                    }
+​
+                    select.innerHTML = html;
+                }
+            };
+            request.send(json);
+        }
+    </script>
+</body>
+</html>
